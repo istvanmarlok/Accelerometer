@@ -1,0 +1,7 @@
+c:\users\marlok\documents\visual studio 2017\Projects\UART reader\UART reader\bin\Debug\UART reader.exe.config
+c:\users\marlok\documents\visual studio 2017\Projects\UART reader\UART reader\bin\Debug\UART reader.exe
+c:\users\marlok\documents\visual studio 2017\Projects\UART reader\UART reader\bin\Debug\UART reader.pdb
+c:\users\marlok\documents\visual studio 2017\Projects\UART reader\UART reader\obj\Debug\UART reader.csprojResolveAssemblyReference.cache
+c:\users\marlok\documents\visual studio 2017\Projects\UART reader\UART reader\obj\Debug\UART reader.csproj.CoreCompileInputs.cache
+c:\users\marlok\documents\visual studio 2017\Projects\UART reader\UART reader\obj\Debug\UART reader.exe
+c:\users\marlok\documents\visual studio 2017\Projects\UART reader\UART reader\obj\Debug\UART reader.pdb

@@ -18,13 +18,22 @@ namespace UART_reader
         static int[] minmax;
         static int avgZ;
         static List<Motion> motions = new List<Motion>();
-        const int samples = 10;
+        const int samples = 5;
         const int accelsamples = 25;
+
+
         
         
 
         public static void Main()
         {
+            int[] x = new int[] { 142, 205, 147, 53, 8, -55, -87, -131, -105, -94 };
+            int[] y = new int[] { -154, -128, -72, -14, 28, 50, 82, 100, 89, 61 };
+            SimpleDTW dtw = new SimpleDTW(x, y);
+            dtw.computeDTW();
+            double[,] f = dtw.getFMatrix();
+                
+            
             Beolvas();
             string message;
             StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
@@ -155,7 +164,7 @@ namespace UART_reader
             if (train == false)
             {
                 string[] acceldatas = new string[25];
-                acceldatas[0] = acc[0].ToString() + ";" + acc[1].ToString() + ";" + acc[2].ToString();
+                acceldatas[0] = acc[0].ToString() + ";" + acc[1].ToString() + ";" + (acc[2]+avgZ).ToString();
 
                 for (int j = 1; j < 25; j++)
                 {
@@ -166,7 +175,7 @@ namespace UART_reader
                     catch (TimeoutException) { }
                 }
 
-                Motion m = new Motion(acceldatas);
+                Motion m = new Motion(acceldatas,avgZ);
 
                 foreach (Motion item in motions)
                 {
@@ -177,6 +186,7 @@ namespace UART_reader
                     x.computeDTW();
                     y.computeDTW();
                     z.computeDTW();
+                    double[,] f = x.getFMatrix();
 
                     if ((x.getSum() + y.getSum() + z.getSum()) < 2000)
                     {
@@ -215,12 +225,12 @@ namespace UART_reader
                 {                                    
                     acc = Feldolgoz(_serialPort.ReadLine());
                 } while (Math.Abs(acc[0]) - Math.Abs(minmax[0]) < 40 && Math.Abs(acc[0]) - Math.Abs(minmax[1]) < 40 && Math.Abs(acc[1]) - Math.Abs(minmax[2]) < 40 &&
-                 Math.Abs(acc[1]) - Math.Abs(minmax[3]) < 40 && Math.Abs(acc[2]) - Math.Abs(minmax[4]) < 110 && Math.Abs(acc[2]) - Math.Abs(minmax[5]) < 110);
+                 Math.Abs(acc[1]) - Math.Abs(minmax[3]) < 40 && Math.Abs(acc[2]) - Math.Abs(minmax[4]) < 40 && Math.Abs(acc[2]) - Math.Abs(minmax[5]) < 40);
 
                 Console.WriteLine("x:" + acc[0].ToString() + "y:" + acc[1].ToString() + "z:" + acc[2].ToString() + "xmin:" + minmax[0].ToString() + "xmax:" + minmax[1].ToString() + "ymin:" + minmax[2].ToString() + "ymax:" + minmax[3].ToString() + "zmin:" + minmax[4].ToString() + "zmax:" + minmax[5].ToString());
 
                 string[] acceldatas = new string[25];
-                acceldatas[0] = acc[0].ToString() + ";" + acc[1].ToString() + ";" + acc[2].ToString();
+                acceldatas[0] = acc[0].ToString() + ";" + acc[1].ToString() + ";" + (acc[2]+avgZ).ToString();
 
                 for (int j = 1; j < 25; j++)
                 {
@@ -230,7 +240,7 @@ namespace UART_reader
                     }
                     catch (TimeoutException) { }
                 }
-                minták.Add(new Motion(acceldatas));
+                minták.Add(new Motion(acceldatas,avgZ));
                 
 
 
@@ -294,9 +304,24 @@ namespace UART_reader
             accel_datas = message.Split(';');
             accel[0] = int.Parse(accel_datas[0]);
             accel[1] = int.Parse(accel_datas[1]);
-            accel[2] = int.Parse(accel_datas[2]);
+            accel[2] = int.Parse(accel_datas[2])-avgZ;     
 
             return accel;
+
+
+            //int[] accel = new int[3];
+            //string[] accel_datas = new string[3];
+
+            //int x = int.Parse(accel_datas[0]);
+            //int y = int.Parse(accel_datas[1]);
+            //int z = int.Parse(accel_datas[2]) - avgZ;
+
+            //accel_datas = message.Split(';');
+            //accel[0] = x <= 40 || x >= -40 ? 0 : x;
+            //accel[1] = y <= 40 || y >= -40 ? 0 : y;
+            //accel[2] = z <= 40 || z >= -40 ? 0 : z;
+
+            //return accel;
 
         }
 
@@ -317,12 +342,16 @@ namespace UART_reader
             }
 
             avgZ = (int)z.Average();
+
             minmax[0] = x.Min();
             minmax[1] = x.Max();
             minmax[2] = y.Min();
             minmax[3] = y.Max();
-            minmax[4] = z.Min();
-            minmax[5] = z.Max();
+            minmax[4] = z.Min()-avgZ;
+            minmax[5] = z.Max()-avgZ;
+
+            Console.WriteLine("avgZ: "+ avgZ.ToString());
+            Console.WriteLine("xmin:" + minmax[0].ToString() + " xmax:" + minmax[1].ToString() + " ymin:" + minmax[2].ToString() + " ymax:" + minmax[3].ToString() + " zmin:" + minmax[4].ToString() + " zmax:" + minmax[5].ToString());
         }
 
 
@@ -415,7 +444,7 @@ namespace UART_reader
                     i++;
                 }
                 string name = s.Remove(s.Length - 4, 4);
-                motions.Add(new Motion(lines, name.Remove(0, 2)));
+                motions.Add(new Motion(lines, name.Remove(0, 2),avgZ));
             }
             
         }

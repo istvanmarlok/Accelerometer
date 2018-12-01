@@ -23,22 +23,22 @@ namespace UART_reader
         public int[] Z { get => z; set => z = value; }
         public bool Type { get => type; set => type = value; }
 
-        public Motion(string[] acceldata,string name)
+        public Motion(string[] acceldata,string name,int avgZ)
         {
             x = new int[acceldata.Length];
             y = new int[acceldata.Length];
             z = new int[acceldata.Length];
             this.name = name;
-            AccelerationToIntBlock(acceldata);           
+            AccelerationToIntBlock(acceldata,avgZ);           
             //AccelerationToFile(name+".txt",acceldata);
         }
 
-        public Motion(string[] acceldata)
+        public Motion(string[] acceldata,int avgZ)
         {
             x = new int[acceldata.Length];
             y = new int[acceldata.Length];
             z = new int[acceldata.Length];
-            AccelerationToIntBlock(acceldata);           
+            AccelerationToIntBlock(acceldata,avgZ);           
 
         }
 
@@ -54,7 +54,7 @@ namespace UART_reader
 
 
 
-        public void AccelerationToIntBlock(string[] acceldata)
+        public void AccelerationToIntBlock(string[] acceldata, int avgZ)
         {
             int[] all = new int[3];                     
 
@@ -63,7 +63,7 @@ namespace UART_reader
                 all = AccelerationStringToInt(acceldata[i]);
                 x[i] = all[0];
                 y[i] = all[1];
-                z[i] = all[2];
+                z[i] = all[2]-avgZ;
             }        
 
         }
